@@ -1,12 +1,25 @@
 package material.linear;
 
-public class ArrayQueue<E> implements Queue<E> {
+public class ArrayQueue<E> implements Queue<E>
+{
+    private final int INITIAL_CAP 2;
 
-    public ArrayQueue() {
-        throw new RuntimeException("Not yet implemented");
+    private E[] array;
+    private int head;
+    private int tail;
+    private int capacity;
+    private int size;
+
+    public ArrayQueue()
+    {
+        array = new E[2];
+        head = 0;
+        tail = 0;
+        capacity = INITIAL_CAP;
     }
 
-    public ArrayQueue(int capacity) {
+    public ArrayQueue(int capacity)
+    {
         throw new RuntimeException("Not yet implemented");
     }
 
