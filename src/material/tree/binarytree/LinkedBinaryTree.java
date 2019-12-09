@@ -1,6 +1,7 @@
 package material.tree.binarytree;
 
 import material.Position;
+import material.tree.iterators.BFSIterator;
 import material.tree.iterators.InorderBinaryTreeIterator;
 
 import java.util.ArrayList;
@@ -436,9 +437,19 @@ public class LinkedBinaryTree<E> implements BinaryTree<E> {
     }
 
     @Override
-    public boolean isComplete() {
-        //TODO: Practica 3 Ejercicio 1
-        throw new RuntimeException("Not yet implemented");
+    public boolean isComplete()
+    {
+        Iterator<Position<E>> it = new BFSIterator<E>(this);
+
+        while (it.hasNext())
+        {
+            Position<E> position = it.next();
+
+            if(this.isInternal(position))
+                if(!this.hasLeft(position) || !this.hasRight(position))
+                    return false;
+        }
+        return true;
     }
 
     // Auxiliary methods

@@ -260,7 +260,7 @@ public class LinkedTree<E> implements NAryTree<E> {
         TreeNode<E> nodeDest = checkPosition(pDest);
 
         // CASE 1: Origin node is the root of the tree.
-        if (nodeOrig.getParent() == null)
+        if (isRoot(nodeOrig))
         {
             throw new RuntimeException("Root node can't be moved");
         }

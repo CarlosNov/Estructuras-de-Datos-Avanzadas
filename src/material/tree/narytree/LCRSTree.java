@@ -1,6 +1,7 @@
 package material.tree.narytree;
 
 import material.Position;
+import material.tree.iterators.BFSIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,7 +15,6 @@ import java.util.List;
  */
 public class LCRSTree<E> implements NAryTree<E>
 {
-    //TODO: Practica 2 Ejercicio 2
 
     /**
      * Inner class which represents a node of the tree
@@ -25,8 +25,8 @@ public class LCRSTree<E> implements NAryTree<E>
     {
         private T element; // The element stored in the position
         private LCRSNode<T> parent; // The parent of the node
-        private List<LCRSNode<T>> children; // The children of the node
-        private LCRSNode<T> sibling; // The parent of the node
+        private LCRSNode<T> children; // The first children of the node
+        private LCRSNode<T> sibling; // The sibling of the node
         private LCRSTree<T> myTree; // A reference to the tree where the node belongs
 
         /**
@@ -36,9 +36,9 @@ public class LCRSTree<E> implements NAryTree<E>
          * @param e the element to store in the node
          * @param p the parent of the node
          * @param s the next sibling of the node
-         * @param c the list of children of the node
+         * @param c the first children of the node
          */
-        public LCRSNode(LCRSTree<T> t, T e, LCRSNode<T> p, LCRSNode<T> s, List<LCRSNode<T>> c) {
+        public LCRSNode(LCRSTree<T> t, T e, LCRSNode<T> p, LCRSNode<T> s, LCRSNode<T> c) {
             this.element = e;
             this.parent = p;
             this.sibling = s;
@@ -65,7 +65,7 @@ public class LCRSTree<E> implements NAryTree<E>
          *
          * @return the list of children
          */
-        public List<LCRSNode<T>> getChildren() {
+        public LCRSNode<T> getChildren() {
             return children;
         }
 
@@ -74,7 +74,7 @@ public class LCRSTree<E> implements NAryTree<E>
          *
          * @param c the list of nodes to be used as children of this position
          */
-        public final void setChildren(List<LCRSNode<T>> c) {
+        public final void setChildren(LCRSNode<T> c) {
             children = c;
         }
 
@@ -173,8 +173,17 @@ public class LCRSTree<E> implements NAryTree<E>
     @Override
     public Iterable<? extends Position<E>> children(Position<E> v)
     {
-        LCRSNode<E> node = checkPosition(v);
-        return node.getChildren();
+        List<LCRSNode<E>> childrenList = new ArrayList<>();
+        LCRSNode<E> parentNode = checkPosition(v);
+        LCRSNode<E> auxiliarNode = parentNode.getChildren();
+
+        while(auxiliarNode != null)
+        {
+            childrenList.add(auxiliarNode);
+            auxiliarNode = auxiliarNode.getSibling();
+        }
+
+        return childrenList;
     }
 
     @Override
@@ -184,7 +193,7 @@ public class LCRSTree<E> implements NAryTree<E>
     public boolean isLeaf(Position<E> v)
     {
         LCRSNode<E> node = checkPosition(v);
-        return (node.getChildren() == null) || (node.getChildren().isEmpty());
+        return (node.getChildren() == null);
     }
 
     @Override
@@ -201,13 +210,13 @@ public class LCRSTree<E> implements NAryTree<E>
             throw new IllegalStateException("Tree already has a root");
         }
         size = 1;
-        root = new LCRSNode<E>(this, e, null, null,  new ArrayList<>());
+        root = new LCRSNode<E>(this, e, null, null, null );
         return root;
     }
 
     @Override
     public Iterator<Position<E>> iterator() {
-        throw new RuntimeException("Not yet implemented");
+        return new BFSIterator<>(this);
     }
 
     @Override
@@ -250,17 +259,180 @@ public class LCRSTree<E> implements NAryTree<E>
     }
 
     @Override
-    public Position<E> add(E element, Position<E> p) {
-        throw new RuntimeException("Not yet implemented");
+    public Position<E> add(E element, Position<E> p)
+    {
+        LCRSNode<E> parent = checkPosition(p);
+        LCRSNode<E> newNode = new LCRSNode<E>(this, element, parent, null, null);
+        LCRSNode<E> auxNode = parent.getChildren();
+
+        if (auxNode == null)
+        {
+            parent.setChildren(newNode);
+        }
+        else
+        {
+            while(auxNode.getSibling() != null)
+            {
+                auxNode = auxNode.getSibling();
+            }
+            auxNode.setSibling(newNode);
+        }
+
+        size++;
+        return newNode;
     }
 
     @Override
-    public void remove(Position<E> p) {
-        throw new RuntimeException("Not yet implemented");
+    public void remove(Position<E> p)
+    {
+        LCRSNode<E> node = checkPosition(p);
+        if (node.getParent() != null)
+        {
+            Iterator<Position<E>> it = new BFSIterator<E>(this, p);
+            int cont = 0;
+            while (it.hasNext()) {
+                LCRSNode<E> next = checkPosition(it.next());
+                next.setMyTree(null);
+                cont++;
+            }
+            size = size - cont;
+            LCRSNode<E> parent = node.getParent();
+            LCRSNode<E> prevNode = null;
+            LCRSNode<E> actualNode = parent.getChildren();
+
+            while(actualNode != null)
+            {
+                if(actualNode.equals(node))
+                {
+                    if(prevNode == null)
+                    {
+                        // CASE 1: The parent has only one children
+                        if(actualNode.getSibling() == null)
+                            parent.setChildren(null);
+
+                        //CASE 2: The parent has more than one children and prev is null
+                        else
+                            parent.setChildren(actualNode.getSibling());
+                    }
+                    else
+                    {
+                        // CASE 3: The node is the last one and there are more than one children
+                        if(actualNode.getSibling() == null)
+                            prevNode.setSibling(null);
+
+                        // CASE 4: The parent has more than one children
+                        else
+                            prevNode.setSibling(actualNode.getSibling());
+                    }
+
+                    actualNode = null;
+                }
+                else
+                {
+                    prevNode = actualNode;
+                    actualNode = actualNode.getSibling();
+                }
+            }
+
+        } else {
+            this.root = null;
+            this.size = 0;
+        }
+        node.setMyTree(null);
     }
 
     @Override
-    public void moveSubtree(Position<E> pOrig, Position<E> pDest) throws RuntimeException {
-        throw new RuntimeException("Not yet implemented");
+    public void moveSubtree(Position<E> pOrig, Position<E> pDest) throws RuntimeException
+    {
+        LCRSNode<E> nodeOrig = checkPosition(pOrig);
+        LCRSNode<E> nodeDest = checkPosition(pDest);
+
+        // CASE 1: Origin node is the root of the tree.
+        if (isRoot(nodeOrig))
+        {
+            throw new RuntimeException("Root node can't be moved");
+        }
+
+        // CASE 2: Origin and destination nodes have the same positions.
+        if (pOrig.equals(pDest))
+        {
+            throw new RuntimeException("Both positions are the same");
+        }
+
+        // CASE 3: Destination node is a subtree of origin node.
+        Iterator<Position<E>> itr = new BFSIterator<E>(this, pOrig);
+        while (itr.hasNext())
+        {
+            if (pDest.equals(itr.next()))
+            {
+                throw new RuntimeException("Target position can't be a sub tree of origin");
+            }
+        }
+
+        // CASE 4: Execute moveSubTree
+
+        LCRSNode<E> parent = nodeOrig.getParent();
+
+        LCRSNode<E> node = checkPosition(pOrig);
+        if (node.getParent() != null)
+        {
+            LCRSNode<E> prevNode = null;
+            LCRSNode<E> actualNode = parent.getChildren();
+
+            while(actualNode != null)
+            {
+                if(actualNode.equals(node))
+                {
+                    if(prevNode == null)
+                    {
+                        // CASE 1: The parent has only one children
+                        if(actualNode.getSibling() == null)
+                            parent.setChildren(null);
+
+                            //CASE 2: The parent has more than one children and prev is null
+                        else
+                            parent.setChildren(actualNode.getSibling());
+                    }
+                    else
+                    {
+                        // CASE 3: The node is the last one and there are more than one children
+                        if(actualNode.getSibling() == null)
+                            prevNode.setSibling(null);
+
+                            // CASE 4: The parent has more than one children
+                        else
+                            prevNode.setSibling(actualNode.getSibling());
+                    }
+
+                    actualNode = null;
+                }
+                else
+                {
+                    prevNode = actualNode;
+                    actualNode = actualNode.getSibling();
+                }
+            }
+
+        } else {
+            this.root = null;
+            this.size = 0;
+        }
+
+        nodeOrig.setParent(nodeDest);
+
+        LCRSNode<E> auxNode = nodeDest.getChildren();
+
+        if (auxNode == null)
+        {
+            parent.setChildren(nodeOrig);
+        }
+        else
+        {
+            while(auxNode.getSibling() != null)
+            {
+                auxNode = auxNode.getSibling();
+            }
+            auxNode.setSibling(nodeOrig);
+        }
     }
 }
