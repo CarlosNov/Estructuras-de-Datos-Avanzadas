@@ -17,6 +17,7 @@ class FlightQueryTest {
 
     @BeforeEach
     void setUp() {
+
         searchDB = new FlightQuery();
 
         airport = new ArrayList<>();

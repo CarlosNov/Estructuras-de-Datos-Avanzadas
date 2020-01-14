@@ -270,8 +270,24 @@ public class LinkedBinarySearchTree<E> implements BinarySearchTree<E> {
 
 
     public Iterable<Position<E>> findRange(E minValue, E maxValue) throws RuntimeException {
-        //TODO: Practica 5 Ejercicio 1
-        throw new RuntimeException("Not yet implemented.");
+	    if(comparator.compare(minValue,maxValue) > 0)
+	        throw new RuntimeException("Invalid range. (min>max)");
+
+        Iterator<Position<E>> iterator = iterator();
+        ArrayList<Position<E>> arrayList = new ArrayList();
+
+        while(iterator.hasNext())
+        {
+            Position<E> curPosition = iterator.next();
+            E curValue = curPosition.getElement();
+            int comp = comparator.compare(minValue, curValue);
+            if (comp >= 0) {
+                comp = comparator.compare(maxValue, curValue);
+                if(comp < 0)
+                    arrayList.add(curPosition);
+            }
+        }
+        return Collections.unmodifiableCollection(arrayList);
     }
 
     public Position<E> first() throws RuntimeException {

@@ -1,4 +1,7 @@
 package material.maps;
+
+import java.util.function.LongToIntFunction;
+
 /**
  * @param <K> The hey
  * @param <V> The stored value
@@ -19,8 +22,7 @@ public class HashTableMapQP<K, V> extends AbstractHashTableMap<K, V> {
 
     @Override
     protected int offset(K key, int i) {
-        //TODO: Practica 4 Ejercicio 1
-        throw new RuntimeException("Not yet implemented.");
+        this.checkKey(key);
+        return (int) (5 * i + 6 *i*i);
     }
-
 }

@@ -1,99 +1,173 @@
 package usecase;
 
 
-public class Flight {
+import material.maps.HashTableMapDH;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.GregorianCalendar;
+import java.util.Objects;
+
+public class Flight implements Comparable{
+
+    private String company;
+    private int flightCode;
+    private LocalDate date;
+    private int minutes;
+    private int hours;
+    private String origin;
+    private String destination;
+    private int capacity;
+    private int delay;
+    private HashTableMapDH<String, String> properties;
 
     public Flight(){
-
+        this.company = "";
+        this.flightCode = -1;
+        this.date = LocalDate.of(1,1,1);
+        this.hours = 0;
+        this.minutes = 0;
+        this.origin = "";
+        this.destination = "";
+        this.capacity = 0;
+        this.delay = 0;
+        this.properties = new HashTableMapDH<>();
     }
 
     public void setTime(int hours, int minutes) {
-        throw new RuntimeException("Not yet implemented.");
+        this.minutes = minutes;
+        this.hours = hours;
     }
 
     public int getHours() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.hours;
     }
 
     public int getMinutes() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.minutes;
     }
 
     public String getCompany() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.company;
     }
 
     public void setCompany(String company) {
-        throw new RuntimeException("Not yet implemented.");
+        this.company = company;
     }
 
     public int getFlightCode() {
-        throw new RuntimeException("Not yet implemented.");
+        return flightCode;
     }
 
-    public void setFlightCode(int flightCode){throw new RuntimeException("Not yet implemented.");
+    public void setFlightCode(int flightCode){
+        this.flightCode = flightCode;
     }
 
     public void setDate(int year, int month, int day) {
-        throw new RuntimeException("Not yet implemented.");
+        this.date = LocalDate.of(year,month,day);
     }
 
     public int getYear() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.date.getYear();
     }
 
-    public int getMonth() {
-        throw new RuntimeException("Not yet implemented.");
-    }
+    public int getMonth() { return this.date.getMonthValue(); }
 
     public int getDay() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.date.getDayOfMonth();
     }
 
+    public LocalDate getDate() { return this.date; }
 
     public int getCapacity() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.capacity;
     }
 
     public void setCapacity(int capacity) {
-        throw new RuntimeException("Not yet implemented.");
+        this.capacity = capacity;
     }
 
     public String getOrigin() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.origin;
     }
 
     public void setOrigin(String origin) {
-        throw new RuntimeException("Not yet implemented.");
+        this.origin = origin;
     }
 
     public String getDestination() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.destination;
     }
 
     public void setDestination(String destination) {
-        throw new RuntimeException("Not yet implemented.");
+        this.destination = destination;
     }
 
     public int getDelay() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.delay;
     }
 
     public void setDelay(int delay) {
-        throw new RuntimeException("Not yet implemented.");
+        this.delay = delay;
     }
 
     public void setProperty(String attribute, String value) {
-        throw new RuntimeException("Not yet implemented.");
+        this.properties.put(attribute, value);
     }
 
     public String getProperty(String attribute) {
-        throw new RuntimeException("Not yet implemented.");
+        return this.properties.get(attribute);
     }
 
     public Iterable<String> getAllAttributes() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.properties.keys();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return flightCode == flight.flightCode &&
+                company.equals(flight.company) &&
+                date.equals(flight.date);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(company, flightCode, date);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Flight f = (Flight) o;
+        int month = f.getMonth();
+        if(month == 0) month = 1;
+
+        int day = f.getDay();
+        if(day == 0) day = 1;
+
+        int thisMonth = this.getMonth();
+        if(thisMonth == 0) thisMonth = 1;
+
+        int thisDay = this.getDay();
+        if(thisDay == 0) thisDay = 1;
+
+        LocalDate date1 = LocalDate.of(this.getYear(), thisMonth, thisDay);
+        LocalDate date2 = LocalDate.of(f.getYear(), month, day);
+        if (date1.equals(date2)){
+            return 0;
+        } else if (date1.isBefore(date2))
+            return -1;
+        else
+            return 1;
+    }
+
+    @Override
+    public String toString() {
+        return getDay() + "-" + getMonth() + "-" + getYear() + "\t" +
+                getCompany()+getFlightCode() + "\t" + destination;
+    }
 }

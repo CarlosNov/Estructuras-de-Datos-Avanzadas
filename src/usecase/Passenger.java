@@ -1,31 +1,48 @@
 package usecase;
 
 
+import java.util.Objects;
+
 public class Passenger {
 
+    private String DNI;
+    private String name;
+    private String surname;
 
     public String getDNI() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.getDNI();
     }
 
     public void setDNI(String dni) {
-        throw new RuntimeException("Not yet implemented.");
+        this.DNI = dni;
     }
 
     public String getName() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.name;
     }
 
     public void setName(String name) {
-        throw new RuntimeException("Not yet implemented.");
+        this.name = name;
     }
 
     public String getSurname() {
-        throw new RuntimeException("Not yet implemented.");
+        return this.surname;
     }
 
     public void setSurname(String surname) {
-        throw new RuntimeException("Not yet implemented.");
+        this.surname = surname;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Passenger passenger = (Passenger) o;
+        return DNI.equals(passenger.DNI);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(DNI);
+    }
 }

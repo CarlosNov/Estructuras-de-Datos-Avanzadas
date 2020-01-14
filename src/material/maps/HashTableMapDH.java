@@ -18,9 +18,12 @@ public class HashTableMapDH<K, V> extends AbstractHashTableMap<K, V> {
         super(p, cap);
     }
 
-    @Override
     protected int offset(K key, int i) {
-        //TODO: Practica 4 Ejercicio 1
-        throw new RuntimeException("Not yet implemented.");
+        this.checkKey(key);
+        return secondHashValue(key) * i;
+    }
+
+    public int secondHashValue(K key) {
+        return prime - (key.hashCode() % prime);
     }
 }
